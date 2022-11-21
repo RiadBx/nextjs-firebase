@@ -7,7 +7,8 @@ import {
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
     GithubAuthProvider,
-    signInWithPopup
+    signInWithPopup,
+    updateProfile
 } from 'firebase/auth'
 import { useState } from 'react';
 import { useRouter } from 'next/router';
@@ -17,16 +18,41 @@ export default function Register() {
     const githubProvider = new GithubAuthProvider();
     const router = useRouter();
     const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [user , setUser] =useState('')
-
+    // var cuser = auth.currentUser;
     const signUp = () => {
+
         createUserWithEmailAndPassword(auth, email, password)
             .then((response) => {
                 console.log(response.user)
+                console.log(name)
                 sessionStorage.setItem('Token', response.user.accessToken);
-                router.push('/home')
+                sessionStorage.setItem('name', name);
+                console.log(sessionStorage)
+                // console.log(auth.currentUser)
+                updateProfile(auth.currentUser,{
+                    displayName: name
+                  }).then((response) =>{
+                    console.log('Update successful.')
+                    // Update successful.
+                    router.push('/home')
+                  }, function(error) {
+                   console.log(error)
+                });  
+                
             })
+
+            // updateProfile(auth.currentUser,{
+            //     displayName: name
+            //   }).then((response) =>{
+            //     console.log(response)
+            //     // Update successful.
+            //     // router.push('/home')
+            //   }, function(error) {
+            //     // An error happened.
+            // });    
     }
 
     const signUpWithGoogle = () => {
@@ -70,7 +96,13 @@ export default function Register() {
 
             <main className={styles.main}>
                 <h1>Register</h1>
-
+                <input
+                    placeholder='Name'
+                    className={styles.inputBox}
+                    onChange={(event) => setName(event.target.value)}
+                    value={name}
+                    type='name'
+                />
                 <input
                     placeholder='Email'
                     className={styles.inputBox}
